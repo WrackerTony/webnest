@@ -33,13 +33,46 @@ export default function RegisterPage() {
     e.preventDefault();
     setError("");
 
+    // Basic validation
+    if (!name.trim()) {
+      setError("Please enter your name");
+      return;
+    }
+
+    if (!email.trim()) {
+      setError("Please enter your email address");
+      return;
+    }
+
+    if (!password.trim()) {
+      setError("Please enter a password");
+      return;
+    }
+
+    if (!confirmPassword.trim()) {
+      setError("Please confirm your password");
+      return;
+    }
+
     if (password !== confirmPassword) {
       setError("Passwords do not match");
       return;
     }
 
+    // Email format validation
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      setError("Please enter a valid email address");
+      return;
+    }
+
     if (password.length < 6) {
       setError("Password must be at least 6 characters");
+      return;
+    }
+
+    if (name.length > 100) {
+      setError("Name must be less than 100 characters");
       return;
     }
 
@@ -49,7 +82,23 @@ export default function RegisterPage() {
       await register(email, password, name);
       router.push("/dashboard");
     } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : "Registration failed");
+      const errorMessage =
+        err instanceof Error ? err.message : "Registration failed";
+
+      // Provide more user-friendly error messages
+      if (errorMessage === "User with this email already exists") {
+        setError(
+          "An account with this email already exists. Please try logging in instead."
+        );
+      } else if (errorMessage.includes("Invalid email format")) {
+        setError("Please enter a valid email address");
+      } else if (errorMessage.includes("Name must be")) {
+        setError("Name must be between 1 and 100 characters");
+      } else if (errorMessage.includes("Password")) {
+        setError(errorMessage);
+      } else {
+        setError("Registration failed. Please try again.");
+      }
     } finally {
       setIsLoading(false);
     }

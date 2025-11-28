@@ -20,17 +20,17 @@ export default function DashboardPage() {
 
   const analytics = useQuery(
     api.analytics.getOverview,
-    token ? { token } : "skip"
+    user ? { token: token! } : "skip"
   );
 
   const mostClicked = useQuery(
     api.analytics.getMostClicked,
-    token ? { token, limit: 5 } : "skip"
+    user ? { token: token!, limit: 5 } : "skip"
   );
 
   const highestRated = useQuery(
     api.analytics.getHighestRated,
-    token ? { token, limit: 5 } : "skip"
+    user ? { token: token!, limit: 5 } : "skip"
   );
 
   // Redirect if not authenticated

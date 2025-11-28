@@ -52,7 +52,7 @@ interface Website {
 
 export default function LibraryPage() {
   const router = useRouter();
-  const { token, isLoading: authLoading } = useAuth();
+  const { user, token, isLoading: authLoading } = useAuth();
 
   // View state
   const [view, setView] = useState<"grid" | "list">("grid");
@@ -86,17 +86,19 @@ export default function LibraryPage() {
   // Fetch data
   const categories = useQuery(
     api.categories.list,
-    token ? { token } : "skip"
+    user ? { token: token! } : "skip"
   ) as Category[] | undefined;
 
   const websites = useQuery(
     api.websites.getByCategory,
-    token ? { token, categoryId: selectedCategoryId, sortBy } : "skip"
+    user ? { token: token!, categoryId: selectedCategoryId, sortBy } : "skip"
   ) as Website[] | undefined;
 
   const searchResults = useQuery(
     api.websites.search,
-    token && searchQuery.length > 0 ? { token, query: searchQuery } : "skip"
+    user && searchQuery.length > 0
+      ? { token: token!, query: searchQuery }
+      : "skip"
   ) as Website[] | undefined;
 
   // Mutations

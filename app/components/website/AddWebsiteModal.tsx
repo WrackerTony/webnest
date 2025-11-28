@@ -22,19 +22,21 @@ export default function AddWebsiteModal({
   folderId,
   onSuccess,
 }: AddWebsiteModalProps) {
-  const { token } = useAuth();
+  const { user, token } = useAuth();
   const [url, setUrl] = useState("");
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [tags, setTags] = useState("");
-  const [selectedCategoryId, setSelectedCategoryId] = useState<Id<"categories"> | undefined>(categoryId);
+  const [selectedCategoryId, setSelectedCategoryId] = useState<
+    Id<"categories"> | undefined
+  >(categoryId);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
 
   // Fetch categories for selection
   const categories = useQuery(
     api.categories.list,
-    token ? { token } : "skip"
+    user ? { token: token! } : "skip"
   );
 
   const createWebsite = useMutation(api.websites.create);
@@ -162,13 +164,22 @@ export default function AddWebsiteModal({
 
         {/* Category selection */}
         <div>
-          <label htmlFor="category-select" className="block text-sm font-medium text-gray-700 dark:text-[#CBC9CF] mb-1">
+          <label
+            htmlFor="category-select"
+            className="block text-sm font-medium text-gray-700 dark:text-[#CBC9CF] mb-1"
+          >
             Category
           </label>
           <select
             id="category-select"
             value={selectedCategoryId || ""}
-            onChange={(e) => setSelectedCategoryId(e.target.value ? e.target.value as Id<"categories"> : undefined)}
+            onChange={(e) =>
+              setSelectedCategoryId(
+                e.target.value
+                  ? (e.target.value as Id<"categories">)
+                  : undefined
+              )
+            }
             className="w-full px-3 py-2 bg-white dark:bg-[#3C3B3D] border border-gray-200 dark:border-[#3C3B3D] rounded-lg text-gray-900 dark:text-[#CBC9CF] focus:outline-none focus:border-violet-500 focus:ring-1 focus:ring-violet-500"
           >
             <option value="">Uncategorized</option>

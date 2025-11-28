@@ -22,6 +22,7 @@ export default defineSchema({
       v.literal("rating"),
       v.literal("title")
     ),
+    theme: v.optional(v.union(v.literal("light"), v.literal("dark"), v.literal("system"))),
     createdAt: v.number(),
     updatedAt: v.number(),
   }).index("by_user", ["userId"]),

@@ -8,6 +8,7 @@ import React, {
   useCallback,
   ReactNode,
 } from "react";
+import { useRouter } from "next/navigation";
 import { useMutation, useQuery } from "convex/react";
 import { api } from "../../convex/_generated/api";
 
@@ -47,6 +48,7 @@ const TOKEN_KEY = "webnest_token";
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [token, setToken] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const router = useRouter();
 
   const loginMutation = useMutation(api.auth.login);
   const registerMutation = useMutation(api.auth.register);
@@ -79,6 +81,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const login = useCallback(
     async (email: string, password: string) => {
       const result = await loginMutation({ email, password });
+      if (!result.success) {
+        throw new Error(result.error);
+      }
       setToken(result.token);
     },
     [loginMutation]
@@ -87,6 +92,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const register = useCallback(
     async (email: string, password: string, name: string) => {
       const result = await registerMutation({ email, password, name });
+      if (!result.success) {
+        throw new Error(result.error);
+      }
       setToken(result.token);
     },
     [registerMutation]
@@ -97,7 +105,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       await logoutMutation({ token });
     }
     setToken(null);
-  }, [token, logoutMutation]);
+    router.push("/");
+  }, [token, logoutMutation, router]);
 
   const updateProfile = useCallback(
     async (data: { name?: string; avatarUrl?: string }) => {

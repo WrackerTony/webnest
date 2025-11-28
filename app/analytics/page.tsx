@@ -13,27 +13,27 @@ export default function AnalyticsPage() {
 
   const analytics = useQuery(
     api.analytics.getOverview,
-    token ? { token } : "skip"
+    user ? { token: token! } : "skip"
   );
 
   const mostClicked = useQuery(
     api.analytics.getMostClicked,
-    token ? { token, limit: 10 } : "skip"
+    user ? { token: token!, limit: 10 } : "skip"
   );
 
   const highestRated = useQuery(
     api.analytics.getHighestRated,
-    token ? { token, limit: 10 } : "skip"
+    user ? { token: token!, limit: 10 } : "skip"
   );
 
   const usageTrends = useQuery(
     api.analytics.getUsageTrends,
-    token ? { token, days: 30 } : "skip"
+    user ? { token: token!, days: 30 } : "skip"
   );
 
   const folderStats = useQuery(
     api.analytics.getFolderStats,
-    token ? { token } : "skip"
+    user ? { token: token! } : "skip"
   );
 
   // Redirect if not authenticated

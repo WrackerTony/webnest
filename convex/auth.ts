@@ -74,16 +74,16 @@ export const register = mutation({
     const password = args.password;
 
     if (!validateEmail(email)) {
-      throw new Error("Invalid email format");
+      return { success: false, error: "Invalid email format" };
     }
 
     if (!validateName(name)) {
-      throw new Error("Name must be between 1 and 100 characters");
+      return { success: false, error: "Name must be between 1 and 100 characters" };
     }
 
     const passwordValidation = validatePassword(password);
     if (!passwordValidation.valid) {
-      throw new Error(passwordValidation.message);
+      return { success: false, error: passwordValidation.message };
     }
 
     // Check if user already exists
@@ -93,7 +93,7 @@ export const register = mutation({
       .first();
     
     if (existing) {
-      throw new Error("User with this email already exists");
+      return { success: false, error: "User with this email already exists" };
     }
 
     const now = Date.now();
@@ -137,7 +137,7 @@ export const register = mutation({
       createdAt: now,
     });
 
-    return { userId, token };
+    return { success: true, userId, token };
   },
 });
 
@@ -152,7 +152,7 @@ export const login = mutation({
     const password = args.password;
 
     if (!validateEmail(email)) {
-      throw new Error("Invalid email or password");
+      return { success: false, error: "Invalid email format" };
     }
 
     const user = await ctx.db
@@ -161,12 +161,11 @@ export const login = mutation({
       .first();
 
     if (!user) {
-      // Use same error message to prevent email enumeration
-      throw new Error("Invalid email or password");
+      return { success: false, error: "Invalid email or password" };
     }
 
     if (user.passwordHash !== secureHash(password, email)) {
-      throw new Error("Invalid email or password");
+      return { success: false, error: "Invalid email or password" };
     }
 
     const now = Date.now();
@@ -180,7 +179,7 @@ export const login = mutation({
       createdAt: now,
     });
 
-    return { userId: user._id, token };
+    return { success: true, userId: user._id, token };
   },
 });
 
@@ -287,13 +286,25 @@ export const updatePreferences = mutation({
       throw new Error("Not authenticated");
     }
 
-    const preferences = await ctx.db
+    let preferences = await ctx.db
       .query("preferences")
       .withIndex("by_user", (q) => q.eq("userId", session.userId))
       .first();
 
     if (!preferences) {
-      throw new Error("Preferences not found");
+      // Create default preferences if not found
+      const preferencesId = await ctx.db.insert("preferences", {
+        userId: session.userId,
+        defaultView: "grid",
+        defaultSort: "dateAdded",
+        createdAt: Date.now(),
+        updatedAt: Date.now(),
+      });
+      preferences = await ctx.db.get(preferencesId);
+    }
+
+    if (!preferences) {
+      throw new Error("Failed to create preferences");
     }
 
     const updates: Record<string, unknown> = { updatedAt: Date.now() };
