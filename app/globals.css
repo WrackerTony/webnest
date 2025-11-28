@@ -1,26 +1,531 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #f8f9fa;
+  --foreground: #1a1a1b;
+  --surface: #ffffff;
+  --surface-hover: #f1f3f4;
+  --border: #e0e0e0;
+  --muted: #5f6368;
+  --accent: #7c3aed;
+  --accent-hover: #6d28d9;
+}
+
+.dark {
+  --background: #1E1E1F;
+  --foreground: #CBC9CF;
+  --surface: #2a2a2b;
+  --surface-hover: #3C3B3D;
+  --border: #3C3B3D;
+  --muted: #6D6C70;
+  --accent: #a78bfa;
+  --accent-hover: #8b5cf6;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
+  --color-surface: var(--surface);
+  --color-surface-hover: var(--surface-hover);
+  --color-border: var(--border);
+  --color-muted: var(--muted);
+  --color-accent: var(--accent);
+  --color-accent-hover: var(--accent-hover);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-}
+/* 
+ * Cross-browser custom cursor support
+ * Works on: Chrome, Firefox, Safari, Edge, Brave, Opera
+ * Tested on: Windows, macOS, Linux
+ * 
+ * Note: Image should be max 128x128px for best compatibility
+ * Hotspot coordinates (0 0) set cursor tip at top-left
+ * 
+ * Cursor is controlled via data-cursor attribute on html element:
+ * - data-cursor="default" or no attribute: System default cursor
+ * - data-cursor="pointer": Custom pointer cursor (pointer.png)
+ * - data-cursor="cursor": Custom cursor (cursor.png)
+ */
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-geist-sans), Arial, Helvetica, sans-serif;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* ==================== POINTER CURSOR STYLE ==================== */
+
+/* Custom pointer cursor - only when data-cursor="pointer" is set on html */
+html[data-cursor="pointer"] *, 
+html[data-cursor="pointer"] *::before, 
+html[data-cursor="pointer"] *::after {
+  cursor: url('/pointer.png') 0 0, auto !important;
+}
+
+html[data-cursor="pointer"], 
+html[data-cursor="pointer"] body {
+  cursor: url('/pointer.png') 0 0, auto !important;
+}
+
+/* Custom cursor for interactive/clickable elements */
+html[data-cursor="pointer"] a, html[data-cursor="pointer"] a:hover, html[data-cursor="pointer"] a:active, html[data-cursor="pointer"] a:visited,
+html[data-cursor="pointer"] button, html[data-cursor="pointer"] button:hover, html[data-cursor="pointer"] button:active,
+html[data-cursor="pointer"] [role="button"], html[data-cursor="pointer"] [role="button"]:hover,
+html[data-cursor="pointer"] input[type="submit"], html[data-cursor="pointer"] input[type="submit"]:hover,
+html[data-cursor="pointer"] input[type="button"], html[data-cursor="pointer"] input[type="button"]:hover,
+html[data-cursor="pointer"] input[type="reset"], html[data-cursor="pointer"] input[type="reset"]:hover,
+html[data-cursor="pointer"] select, html[data-cursor="pointer"] select:hover,
+html[data-cursor="pointer"] input[type="checkbox"], html[data-cursor="pointer"] input[type="checkbox"]:hover,
+html[data-cursor="pointer"] input[type="radio"], html[data-cursor="pointer"] input[type="radio"]:hover,
+html[data-cursor="pointer"] label, html[data-cursor="pointer"] label:hover,
+html[data-cursor="pointer"] [onclick], html[data-cursor="pointer"] [onclick]:hover,
+html[data-cursor="pointer"] .cursor-pointer, html[data-cursor="pointer"] .cursor-pointer:hover,
+html[data-cursor="pointer"] summary, html[data-cursor="pointer"] summary:hover,
+html[data-cursor="pointer"] [tabindex]:not([tabindex="-1"]), html[data-cursor="pointer"] [tabindex]:not([tabindex="-1"]):hover {
+  cursor: url('/pointer.png') 0 0, pointer !important;
+}
+
+/* Text inputs should also have custom cursor */
+html[data-cursor="pointer"] input[type="text"], html[data-cursor="pointer"] input[type="text"]:hover,
+html[data-cursor="pointer"] input[type="email"], html[data-cursor="pointer"] input[type="email"]:hover,
+html[data-cursor="pointer"] input[type="password"], html[data-cursor="pointer"] input[type="password"]:hover,
+html[data-cursor="pointer"] input[type="search"], html[data-cursor="pointer"] input[type="search"]:hover,
+html[data-cursor="pointer"] input[type="tel"], html[data-cursor="pointer"] input[type="tel"]:hover,
+html[data-cursor="pointer"] input[type="url"], html[data-cursor="pointer"] input[type="url"]:hover,
+html[data-cursor="pointer"] input[type="number"], html[data-cursor="pointer"] input[type="number"]:hover,
+html[data-cursor="pointer"] input[type="date"], html[data-cursor="pointer"] input[type="date"]:hover,
+html[data-cursor="pointer"] input[type="time"], html[data-cursor="pointer"] input[type="time"]:hover,
+html[data-cursor="pointer"] input[type="datetime-local"], html[data-cursor="pointer"] input[type="datetime-local"]:hover,
+html[data-cursor="pointer"] textarea, html[data-cursor="pointer"] textarea:hover {
+  cursor: url('/pointer.png') 0 0, text !important;
+}
+
+/* Disabled elements */
+html[data-cursor="pointer"] [disabled], html[data-cursor="pointer"] [disabled]:hover,
+html[data-cursor="pointer"] button:disabled, html[data-cursor="pointer"] button:disabled:hover,
+html[data-cursor="pointer"] input:disabled, html[data-cursor="pointer"] input:disabled:hover {
+  cursor: url('/pointer.png') 0 0, not-allowed !important;
+}
+
+/* ==================== CURSOR STYLE ==================== */
+
+/* Custom cursor - only when data-cursor="cursor" is set on html */
+html[data-cursor="cursor"] *, 
+html[data-cursor="cursor"] *::before, 
+html[data-cursor="cursor"] *::after {
+  cursor: url('/cursor.png') 0 0, auto !important;
+}
+
+html[data-cursor="cursor"], 
+html[data-cursor="cursor"] body {
+  cursor: url('/cursor.png') 0 0, auto !important;
+}
+
+/* Custom cursor for interactive/clickable elements */
+html[data-cursor="cursor"] a, html[data-cursor="cursor"] a:hover, html[data-cursor="cursor"] a:active, html[data-cursor="cursor"] a:visited,
+html[data-cursor="cursor"] button, html[data-cursor="cursor"] button:hover, html[data-cursor="cursor"] button:active,
+html[data-cursor="cursor"] [role="button"], html[data-cursor="cursor"] [role="button"]:hover,
+html[data-cursor="cursor"] input[type="submit"], html[data-cursor="cursor"] input[type="submit"]:hover,
+html[data-cursor="cursor"] input[type="button"], html[data-cursor="cursor"] input[type="button"]:hover,
+html[data-cursor="cursor"] input[type="reset"], html[data-cursor="cursor"] input[type="reset"]:hover,
+html[data-cursor="cursor"] select, html[data-cursor="cursor"] select:hover,
+html[data-cursor="cursor"] input[type="checkbox"], html[data-cursor="cursor"] input[type="checkbox"]:hover,
+html[data-cursor="cursor"] input[type="radio"], html[data-cursor="cursor"] input[type="radio"]:hover,
+html[data-cursor="cursor"] label, html[data-cursor="cursor"] label:hover,
+html[data-cursor="cursor"] [onclick], html[data-cursor="cursor"] [onclick]:hover,
+html[data-cursor="cursor"] .cursor-pointer, html[data-cursor="cursor"] .cursor-pointer:hover,
+html[data-cursor="cursor"] summary, html[data-cursor="cursor"] summary:hover,
+html[data-cursor="cursor"] [tabindex]:not([tabindex="-1"]), html[data-cursor="cursor"] [tabindex]:not([tabindex="-1"]):hover {
+  cursor: url('/cursor.png') 0 0, pointer !important;
+}
+
+/* Text inputs should also have custom cursor */
+html[data-cursor="cursor"] input[type="text"], html[data-cursor="cursor"] input[type="text"]:hover,
+html[data-cursor="cursor"] input[type="email"], html[data-cursor="cursor"] input[type="email"]:hover,
+html[data-cursor="cursor"] input[type="password"], html[data-cursor="cursor"] input[type="password"]:hover,
+html[data-cursor="cursor"] input[type="search"], html[data-cursor="cursor"] input[type="search"]:hover,
+html[data-cursor="cursor"] input[type="tel"], html[data-cursor="cursor"] input[type="tel"]:hover,
+html[data-cursor="cursor"] input[type="url"], html[data-cursor="cursor"] input[type="url"]:hover,
+html[data-cursor="cursor"] input[type="number"], html[data-cursor="cursor"] input[type="number"]:hover,
+html[data-cursor="cursor"] input[type="date"], html[data-cursor="cursor"] input[type="date"]:hover,
+html[data-cursor="cursor"] input[type="time"], html[data-cursor="cursor"] input[type="time"]:hover,
+html[data-cursor="cursor"] input[type="datetime-local"], html[data-cursor="cursor"] input[type="datetime-local"]:hover,
+html[data-cursor="cursor"] textarea, html[data-cursor="cursor"] textarea:hover {
+  cursor: url('/cursor.png') 0 0, text !important;
+}
+
+/* Disabled elements */
+html[data-cursor="cursor"] [disabled], html[data-cursor="cursor"] [disabled]:hover,
+html[data-cursor="cursor"] button:disabled, html[data-cursor="cursor"] button:disabled:hover,
+html[data-cursor="cursor"] input:disabled, html[data-cursor="cursor"] input:disabled:hover {
+  cursor: url('/cursor.png') 0 0, not-allowed !important;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #6D6C70;
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #8b5cf6;
+}
+
+/* Glassmorphism effects */
+.glass {
+  background: rgba(60, 59, 61, 0.7);
+  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(203, 201, 207, 0.1);
+}
+
+:root .glass {
+  background: rgba(255, 255, 255, 0.8);
+  border: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+.glass-light {
+  background: rgba(255, 255, 255, 0.8);
+  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+/* Glow effects */
+.glow {
+  box-shadow: 0 0 20px rgba(139, 92, 246, 0.3);
+}
+
+.glow-hover:hover {
+  box-shadow: 0 0 30px rgba(139, 92, 246, 0.5);
+}
+
+.text-glow {
+  text-shadow: 0 0 20px rgba(139, 92, 246, 0.5);
+}
+
+/* Gradient text */
+.gradient-text {
+  background: linear-gradient(135deg, #a78bfa 0%, #8b5cf6 50%, #7c3aed 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Animated gradient background */
+.animated-gradient {
+  background: linear-gradient(-45deg, #1E1E1F, #3C3B3D, #2d2b4a, #1E1E1F);
+  background-size: 400% 400%;
+  animation: gradientShift 15s ease infinite;
+}
+
+:root .animated-gradient {
+  background: linear-gradient(-45deg, #ffffff, #f5f5f7, #e8e8ed, #ffffff);
+  background-size: 400% 400%;
+}
+
+@keyframes gradientShift {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+/* Floating animations */
+@keyframes float {
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  50% { transform: translateY(-30px) rotate(2deg); }
+}
+
+@keyframes float-delayed {
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  50% { transform: translateY(-20px) rotate(-2deg); }
+}
+
+@keyframes pulse-slow {
+  0%, 100% { opacity: 0.4; transform: scale(1); }
+  50% { opacity: 0.6; transform: scale(1.05); }
+}
+
+.animate-float {
+  animation: float 8s ease-in-out infinite;
+}
+
+.animate-float-delayed {
+  animation: float-delayed 10s ease-in-out infinite;
+  animation-delay: -5s;
+}
+
+.animate-pulse-slow {
+  animation: pulse-slow 6s ease-in-out infinite;
+}
+
+/* Grid pattern background */
+.bg-grid-pattern {
+  background-image: 
+    linear-gradient(rgba(139, 92, 246, 0.1) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(139, 92, 246, 0.1) 1px, transparent 1px);
+  background-size: 50px 50px;
+}
+
+/* Particle styles */
+.particles {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+}
+
+.particle {
+  position: absolute;
+  width: 3px;
+  height: 3px;
+  background: linear-gradient(135deg, #8b5cf6, #a78bfa);
+  border-radius: 50%;
+  opacity: 0;
+  animation: particle-rise linear infinite;
+  box-shadow: 0 0 10px rgba(139, 92, 246, 0.5);
+}
+
+@keyframes particle-rise {
+  0% {
+    opacity: 0;
+    transform: translateY(100vh) scale(0);
+  }
+  10% {
+    opacity: 0.6;
+  }
+  90% {
+    opacity: 0.6;
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-100vh) scale(1);
+  }
+}
+
+/* Shimmer effect */
+.shimmer {
+  position: relative;
+  overflow: hidden;
+}
+
+.shimmer::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(139, 92, 246, 0.1),
+    transparent
+  );
+  animation: shimmer 2s infinite;
+}
+
+@keyframes shimmer {
+  100% { left: 100%; }
+}
+
+/* Pulse glow */
+.pulse-glow {
+  animation: pulseGlow 2s ease-in-out infinite;
+}
+
+@keyframes pulseGlow {
+  0%, 100% { box-shadow: 0 0 5px rgba(139, 92, 246, 0.3); }
+  50% { box-shadow: 0 0 20px rgba(139, 92, 246, 0.6); }
+}
+
+/* Float animation */
+.float {
+  animation: float 6s ease-in-out infinite;
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-10px); }
+}
+
+/* Fade animations */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideUp {
+  from { 
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to { 
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideIn {
+  from { 
+    opacity: 0;
+    transform: translateX(-10px);
+  }
+  to { 
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes zoomIn {
+  from { 
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to { 
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes scaleIn {
+  from { 
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  to { 
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.animate-in {
+  animation-duration: 300ms;
+  animation-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  animation-fill-mode: both;
+}
+
+.fade-in {
+  animation-name: fadeIn;
+}
+
+.slide-up {
+  animation-name: slideUp;
+}
+
+.slide-in {
+  animation-name: slideIn;
+}
+
+.zoom-in-95 {
+  animation-name: zoomIn;
+}
+
+.scale-in {
+  animation-name: scaleIn;
+}
+
+/* Stagger animation delays */
+.delay-100 { animation-delay: 100ms; }
+.delay-200 { animation-delay: 200ms; }
+.delay-300 { animation-delay: 300ms; }
+.delay-400 { animation-delay: 400ms; }
+.delay-500 { animation-delay: 500ms; }
+
+/* Line clamp */
+.line-clamp-2 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* Context menu styles */
+.context-menu {
+  background: #2C2B2D;
+  border: 1px solid #3C3B3D;
+  border-radius: 0.5rem;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5), 0 10px 10px -5px rgba(0, 0, 0, 0.25);
+  padding: 0.25rem 0;
+  min-width: 140px;
+}
+
+.context-menu-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  width: 100%;
+  padding: 0.5rem 0.75rem;
+  font-size: 0.875rem;
+  color: #CBC9CF;
+  transition: background-color 0.15s;
+}
+
+.context-menu-item:hover {
+  background-color: #3C3B3D;
+}
+
+.context-menu-item-danger {
+  color: #f87171;
+}
+
+.context-menu-item-danger:hover {
+  background-color: #3C3B3D;
+}
+
+/* Focus ring reset */
+*:focus {
+  outline: none;
+}
+
+*:focus-visible {
+  outline: 2px solid #8b5cf6;
+  outline-offset: 2px;
+}
+
+/* Card hover effects */
+.card-hover {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.card-hover:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+}
+
+/* Border gradient */
+.border-gradient {
+  position: relative;
+  background: var(--surface);
+  border-radius: 12px;
+}
+
+.border-gradient::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 12px;
+  padding: 1px;
+  background: linear-gradient(135deg, #8b5cf6, #6D6C70);
+  -webkit-mask: 
+    linear-gradient(#fff 0 0) content-box, 
+    linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask: 
+    linear-gradient(#fff 0 0) content-box, 
+    linear-gradient(#fff 0 0);
+  mask-composite: exclude;
+  pointer-events: none;
 }
