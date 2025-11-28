@@ -84,7 +84,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       if (!result.success) {
         throw new Error(result.error);
       }
-      setToken(result.token);
+      setToken(result.token!);
     },
     [loginMutation]
   );
@@ -95,7 +95,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       if (!result.success) {
         throw new Error(result.error);
       }
-      setToken(result.token);
+      setToken(result.token!);
     },
     [registerMutation]
   );
