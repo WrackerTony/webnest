@@ -13,27 +13,27 @@ export default function AnalyticsPage() {
 
   const analytics = useQuery(
     api.analytics.getOverview,
-    user ? { token: token! } : "skip"
+    user ? { token: token! } : "skip",
   );
 
   const mostClicked = useQuery(
     api.analytics.getMostClicked,
-    user ? { token: token!, limit: 10 } : "skip"
+    user ? { token: token!, limit: 10 } : "skip",
   );
 
   const highestRated = useQuery(
     api.analytics.getHighestRated,
-    user ? { token: token!, limit: 10 } : "skip"
+    user ? { token: token!, limit: 10 } : "skip",
   );
 
   const usageTrends = useQuery(
     api.analytics.getUsageTrends,
-    user ? { token: token!, days: 30 } : "skip"
+    user ? { token: token!, days: 30 } : "skip",
   );
 
   const folderStats = useQuery(
     api.analytics.getFolderStats,
-    user ? { token: token! } : "skip"
+    user ? { token: token! } : "skip",
   );
 
   useEffect(() => {
@@ -48,7 +48,6 @@ export default function AnalyticsPage() {
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 bg-linear-to-br from-background via-background to-surface dark:from-[#1E1E1F] dark:via-[#1E1E1F] dark:to-[#2a2a2b] min-h-screen">
-
       <div className="mb-8">
         <h1 className="text-3xl font-bold text-gray-900 dark:text-[#CBC9CF]">
           Analytics
@@ -73,7 +72,6 @@ export default function AnalyticsPage() {
       )}
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-
         <Card>
           <CardBody>
             <h2 className="text-lg font-semibold text-gray-900 dark:text-[#CBC9CF] mb-4">
@@ -190,7 +188,7 @@ export default function AnalyticsPage() {
               {usageTrends.map((day: { date: string; count: number }) => {
                 const maxCount = Math.max(
                   ...usageTrends.map((d: any) => d.count),
-                  1
+                  1,
                 );
                 const height = (day.count / maxCount) * 100;
                 return (
@@ -331,7 +329,7 @@ function StatCard({
 function getFaviconUrl(url: string) {
   try {
     const domain = new URL(url).hostname;
-    return `https:
+    return `https://www.google.com/s2/favicons?domain=${domain}&sz=32`;
   } catch {
     return "/favicon.ico";
   }

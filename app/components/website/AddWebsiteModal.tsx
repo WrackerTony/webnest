@@ -35,7 +35,7 @@ export default function AddWebsiteModal({
 
   const categories = useQuery(
     api.categories.list,
-    user ? { token: token! } : "skip"
+    user ? { token: token! } : "skip",
   );
 
   const createWebsite = useMutation(api.websites.create);
@@ -73,7 +73,7 @@ export default function AddWebsiteModal({
     setError("");
 
     try {
-      const finalUrl = url.startsWith("http") ? url : `https:
+      const finalUrl = url.startsWith("http") ? url : `https://${url}`;
       const tagsArray = tags
         .split(",")
         .map((t) => t.trim())
@@ -106,15 +106,11 @@ export default function AddWebsiteModal({
       const finalUrl = url.startsWith("http") ? url : `https://${url}`;
       new URL(finalUrl);
 
-      // In a real app, you'd call an API to fetch metadata
-      // For now, we'll just set the hostname as title
       const hostname = new URL(finalUrl).hostname;
       if (!title) {
         setTitle(hostname.replace("www.", ""));
       }
-    } catch {
-      // Invalid URL, ignore
-    }
+    } catch {}
   };
 
   return (
@@ -175,7 +171,7 @@ export default function AddWebsiteModal({
               setSelectedCategoryId(
                 e.target.value
                   ? (e.target.value as Id<"categories">)
-                  : undefined
+                  : undefined,
               )
             }
             className="w-full px-3 py-2 bg-white dark:bg-[#3C3B3D] border border-gray-200 dark:border-[#3C3B3D] rounded-lg text-gray-900 dark:text-[#CBC9CF] focus:outline-none focus:border-violet-500 focus:ring-1 focus:ring-violet-500"
