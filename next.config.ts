@@ -32,7 +32,7 @@ const securityHeaders = [
 ];
 
 const nextConfig: NextConfig = {
-  // Security headers for all routes
+
   async headers() {
     return [
       {
@@ -42,10 +42,8 @@ const nextConfig: NextConfig = {
     ];
   },
 
-  // Optimize for production
   poweredByHeader: false,
 
-  // Image optimization settings
   images: {
     remotePatterns: [
       {
@@ -56,7 +54,6 @@ const nextConfig: NextConfig = {
     ],
   },
 
-  // Strict mode for better development
   reactStrictMode: true,
 };
 

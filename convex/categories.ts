@@ -2,7 +2,6 @@ import { mutation, query } from "./_generated/server";
 import { v } from "convex/values";
 import { Id } from "./_generated/dataModel";
 
-// Helper to verify authentication
 async function verifyAuth(ctx: { db: any }, token: string): Promise<Id<"users">> {
   const session = await ctx.db
     .query("sessions")
@@ -16,25 +15,21 @@ async function verifyAuth(ctx: { db: any }, token: string): Promise<Id<"users">>
   return session.userId;
 }
 
-// Input validation helpers
 function sanitizeText(text: string, maxLength: number = 100): string {
   if (!text || typeof text !== "string") return "";
   return text.trim().slice(0, maxLength).replace(/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/g, "");
 }
 
-// Valid color format check (hex color)
 function isValidColor(color: string): boolean {
   return /^#[0-9A-Fa-f]{6}$/.test(color);
 }
 
-// Valid icon values
 const VALID_ICONS = ["folder", "ai", "tools", "social", "dev", "news", "shopping", "entertainment", "education", "star"];
 
 function isValidIcon(icon: string): boolean {
   return VALID_ICONS.includes(icon);
 }
 
-// Create a new category
 export const create = mutation({
   args: {
     token: v.string(),
@@ -45,19 +40,15 @@ export const create = mutation({
   handler: async (ctx, args) => {
     const userId = await verifyAuth(ctx, args.token);
 
-    // Validate and sanitize inputs
     const name = sanitizeText(args.name, 50);
     if (!name || name.length === 0) {
       throw new Error("Category name is required");
     }
 
-    // Validate color
     const color = args.color && isValidColor(args.color) ? args.color : "#8b5cf6";
-    
-    // Validate icon
+
     const icon = args.icon && isValidIcon(args.icon) ? args.icon : "folder";
 
-    // Check if category with same name exists
     const existing = await ctx.db
       .query("categories")
       .withIndex("by_user", (q: any) => q.eq("userId", userId))
@@ -67,12 +58,10 @@ export const create = mutation({
       throw new Error("Category already exists");
     }
 
-    // Limit number of categories per user
     if (existing.length >= 50) {
       throw new Error("Maximum number of categories reached");
     }
 
-    // Get the highest order number
     const maxOrder = existing.reduce((max: number, c: any) => Math.max(max, c.order), -1);
 
     const now = Date.now();
@@ -90,7 +79,6 @@ export const create = mutation({
   },
 });
 
-// Get all categories for a user
 export const list = query({
   args: {
     token: v.string(),
@@ -103,7 +91,6 @@ export const list = query({
       .withIndex("by_user", (q: any) => q.eq("userId", userId))
       .collect();
 
-    // Get website count for each category
     const websites = await ctx.db
       .query("websites")
       .withIndex("by_user", (q: any) => q.eq("userId", userId))
@@ -125,7 +112,6 @@ export const list = query({
   },
 });
 
-// Get a single category
 export const get = query({
   args: {
     token: v.string(),
@@ -143,7 +129,6 @@ export const get = query({
   },
 });
 
-// Update a category
 export const update = mutation({
   args: {
     token: v.string(),
@@ -161,8 +146,7 @@ export const update = mutation({
     }
 
     const updates: Record<string, unknown> = { updatedAt: Date.now() };
-    
-    // Validate and sanitize inputs
+
     if (args.name !== undefined) {
       const name = sanitizeText(args.name, 50);
       if (!name || name.length === 0) {
@@ -170,14 +154,14 @@ export const update = mutation({
       }
       updates.name = name;
     }
-    
+
     if (args.color !== undefined) {
       if (!isValidColor(args.color)) {
         throw new Error("Invalid color format");
       }
       updates.color = args.color;
     }
-    
+
     if (args.icon !== undefined) {
       if (!isValidIcon(args.icon)) {
         throw new Error("Invalid icon");
@@ -190,7 +174,6 @@ export const update = mutation({
   },
 });
 
-// Delete a category
 export const remove = mutation({
   args: {
     token: v.string(),
@@ -204,7 +187,6 @@ export const remove = mutation({
       throw new Error("Category not found");
     }
 
-    // Set categoryId to undefined for all websites in this category
     const websites = await ctx.db
       .query("websites")
       .withIndex("by_category", (q: any) => q.eq("categoryId", args.categoryId))
@@ -220,7 +202,6 @@ export const remove = mutation({
   },
 });
 
-// Reorder categories
 export const reorder = mutation({
   args: {
     token: v.string(),

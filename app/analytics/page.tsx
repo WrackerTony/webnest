@@ -36,7 +36,6 @@ export default function AnalyticsPage() {
     user ? { token: token! } : "skip"
   );
 
-  // Redirect if not authenticated
   useEffect(() => {
     if (!authLoading && !user) {
       router.push("/login");
@@ -49,7 +48,7 @@ export default function AnalyticsPage() {
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 bg-linear-to-br from-background via-background to-surface dark:from-[#1E1E1F] dark:via-[#1E1E1F] dark:to-[#2a2a2b] min-h-screen">
-      {/* Header */}
+
       <div className="mb-8">
         <h1 className="text-3xl font-bold text-gray-900 dark:text-[#CBC9CF]">
           Analytics
@@ -59,7 +58,6 @@ export default function AnalyticsPage() {
         </p>
       </div>
 
-      {/* Overview stats */}
       {analytics && (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 mb-8">
           <StatCard title="Total Websites" value={analytics.totalWebsites} />
@@ -75,7 +73,7 @@ export default function AnalyticsPage() {
       )}
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-        {/* Most clicked websites */}
+
         <Card>
           <CardBody>
             <h2 className="text-lg font-semibold text-gray-900 dark:text-[#CBC9CF] mb-4">
@@ -119,7 +117,6 @@ export default function AnalyticsPage() {
           </CardBody>
         </Card>
 
-        {/* Highest rated websites */}
         <Card>
           <CardBody>
             <h2 className="text-lg font-semibold text-gray-900 dark:text-[#CBC9CF] mb-4">
@@ -334,7 +331,7 @@ function StatCard({
 function getFaviconUrl(url: string) {
   try {
     const domain = new URL(url).hostname;
-    return `https://www.google.com/s2/favicons?domain=${domain}&sz=64`;
+    return `https:
   } catch {
     return "/favicon.ico";
   }

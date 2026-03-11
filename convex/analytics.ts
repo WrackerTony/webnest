@@ -2,7 +2,6 @@ import { query } from "./_generated/server";
 import { v } from "convex/values";
 import { Id } from "./_generated/dataModel";
 
-// Helper to verify authentication
 async function verifyAuth(ctx: { db: any }, token: string): Promise<Id<"users">> {
   const session = await ctx.db
     .query("sessions")
@@ -16,7 +15,6 @@ async function verifyAuth(ctx: { db: any }, token: string): Promise<Id<"users">>
   return session.userId;
 }
 
-// Get analytics overview
 export const getOverview = query({
   args: {
     token: v.string(),
@@ -24,25 +22,21 @@ export const getOverview = query({
   handler: async (ctx, args) => {
     const userId = await verifyAuth(ctx, args.token);
 
-    // Get all websites
     const websites = await ctx.db
       .query("websites")
       .withIndex("by_user", (q: any) => q.eq("userId", userId))
       .collect();
 
-    // Get all folders
     const folders = await ctx.db
       .query("folders")
       .withIndex("by_user", (q: any) => q.eq("userId", userId))
       .collect();
 
-    // Get all ratings
     const ratings = await ctx.db
       .query("ratings")
       .withIndex("by_user", (q: any) => q.eq("userId", userId))
       .collect();
 
-    // Calculate statistics
     const totalWebsites = websites.length;
     const totalFolders = folders.length;
     const totalClicks = websites.reduce((sum: number, w: any) => sum + w.clickCount, 0);
@@ -50,7 +44,6 @@ export const getOverview = query({
       ? ratings.reduce((sum: number, r: any) => sum + r.rating, 0) / ratings.length
       : 0;
 
-    // Get tags distribution
     const tagCounts: Record<string, number> = {};
     for (const website of websites) {
       for (const tag of website.tags) {
@@ -62,7 +55,6 @@ export const getOverview = query({
       .slice(0, 10)
       .map(([tag, count]) => ({ tag, count }));
 
-    // Get recent activity (websites added in the last 30 days)
     const thirtyDaysAgo = Date.now() - (30 * 24 * 60 * 60 * 1000);
     const recentlyAdded = websites.filter((w: any) => w.createdAt > thirtyDaysAgo).length;
 
@@ -78,7 +70,6 @@ export const getOverview = query({
   },
 });
 
-// Get most clicked websites
 export const getMostClicked = query({
   args: {
     token: v.string(),
@@ -99,7 +90,6 @@ export const getMostClicked = query({
   },
 });
 
-// Get highest rated websites
 export const getHighestRated = query({
   args: {
     token: v.string(),
@@ -114,12 +104,10 @@ export const getHighestRated = query({
       .withIndex("by_user", (q: any) => q.eq("userId", userId))
       .collect();
 
-    // Sort by rating descending
     const topRatings = ratings
       .sort((a: any, b: any) => b.rating - a.rating)
       .slice(0, limit);
 
-    // Get website details
     const websites = [];
     for (const rating of topRatings) {
       const website = await ctx.db.get(rating.websiteId);
@@ -136,7 +124,6 @@ export const getHighestRated = query({
   },
 });
 
-// Get usage trends over time
 export const getUsageTrends = query({
   args: {
     token: v.string(),
@@ -151,13 +138,12 @@ export const getUsageTrends = query({
       .withIndex("by_user", (q: any) => q.eq("userId", userId))
       .collect();
 
-    // Group by day
     const now = Date.now();
     const dayMs = 24 * 60 * 60 * 1000;
     const startDate = now - (days * dayMs);
 
     const dailyCounts: Record<string, number> = {};
-    
+
     for (let i = 0; i < days; i++) {
       const date = new Date(now - (i * dayMs));
       const dateStr = date.toISOString().split('T')[0];
@@ -180,7 +166,6 @@ export const getUsageTrends = query({
   },
 });
 
-// Get folder statistics
 export const getFolderStats = query({
   args: {
     token: v.string(),
@@ -198,7 +183,6 @@ export const getFolderStats = query({
       .withIndex("by_user", (q: any) => q.eq("userId", userId))
       .collect();
 
-    // Count websites per folder
     const folderCounts: Record<string, number> = {};
     for (const website of websites) {
       if (website.folderId) {

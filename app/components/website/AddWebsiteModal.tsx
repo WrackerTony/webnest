@@ -11,7 +11,7 @@ interface AddWebsiteModalProps {
   isOpen: boolean;
   onClose: () => void;
   categoryId?: Id<"categories">;
-  folderId?: Id<"folders"> | null; // Legacy support
+  folderId?: Id<"folders"> | null;
   onSuccess?: () => void;
 }
 
@@ -33,7 +33,6 @@ export default function AddWebsiteModal({
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
 
-  // Fetch categories for selection
   const categories = useQuery(
     api.categories.list,
     user ? { token: token! } : "skip"
@@ -63,7 +62,6 @@ export default function AddWebsiteModal({
       return;
     }
 
-    // Validate URL
     try {
       new URL(url.startsWith("http") ? url : `https://${url}`);
     } catch {
@@ -75,7 +73,7 @@ export default function AddWebsiteModal({
     setError("");
 
     try {
-      const finalUrl = url.startsWith("http") ? url : `https://${url}`;
+      const finalUrl = url.startsWith("http") ? url : `https:
       const tagsArray = tags
         .split(",")
         .map((t) => t.trim())

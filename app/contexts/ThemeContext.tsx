@@ -9,7 +9,7 @@ interface ThemeContextType {
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
 export function ThemeProvider({ children }: { children: ReactNode }) {
-  // Always apply dark mode on mount
+
   useEffect(() => {
     document.documentElement.classList.add("dark");
   }, []);

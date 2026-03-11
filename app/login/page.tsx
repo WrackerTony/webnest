@@ -20,7 +20,6 @@ export default function LoginPage() {
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
-  // Redirect if already logged in
   React.useEffect(() => {
     if (user) {
       router.push("/dashboard");
@@ -31,7 +30,6 @@ export default function LoginPage() {
     e.preventDefault();
     setError("");
 
-    // Basic validation
     if (!email.trim()) {
       setError("Please enter your email address");
       return;
@@ -42,7 +40,6 @@ export default function LoginPage() {
       return;
     }
 
-    // Email format validation
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email)) {
       setError("Please enter a valid email address");
@@ -57,7 +54,6 @@ export default function LoginPage() {
     } catch (err: unknown) {
       const errorMessage = err instanceof Error ? err.message : "Login failed";
 
-      // Provide more user-friendly error messages
       if (errorMessage === "Invalid email or password") {
         setError(
           "The email or password you entered is incorrect. Please check your credentials and try again."
@@ -72,7 +68,7 @@ export default function LoginPage() {
 
   return (
     <div className="min-h-screen flex items-center justify-center p-4 relative overflow-hidden">
-      {/* Shader background container */}
+
       <div className="absolute inset-0">
         <ShaderBackground />
       </div>

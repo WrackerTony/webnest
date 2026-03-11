@@ -31,21 +31,17 @@ export default function SettingsPage() {
     text: string;
   } | null>(null);
 
-  // Profile form
   const [name, setName] = useState("");
 
-  // Preferences form
   const [defaultView, setDefaultView] = useState<"grid" | "list">("grid");
   const [defaultSort, setDefaultSort] = useState<
     "dateAdded" | "clickCount" | "rating" | "title"
   >("dateAdded");
 
-  // Password form
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
 
-  // Load user data
   useEffect(() => {
     if (user) {
       setName(user.name);
@@ -56,7 +52,6 @@ export default function SettingsPage() {
     }
   }, [user]);
 
-  // Redirect if not authenticated
   useEffect(() => {
     if (!authLoading && !user) {
       router.push("/login");
@@ -149,7 +144,7 @@ export default function SettingsPage() {
 
   return (
     <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-8 bg-linear-to-br from-background via-background to-surface dark:from-[#1E1E1F] dark:via-[#1E1E1F] dark:to-[#2a2a2b] min-h-screen">
-      {/* Header */}
+
       <div className="mb-8">
         <h1 className="text-3xl font-bold text-gray-900 dark:text-[#CBC9CF]">
           Settings
@@ -159,7 +154,6 @@ export default function SettingsPage() {
         </p>
       </div>
 
-      {/* Message */}
       {message && (
         <div
           className={`mb-6 p-4 rounded-lg border ${

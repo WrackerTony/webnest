@@ -2,7 +2,6 @@ import { mutation, query } from "./_generated/server";
 import { v } from "convex/values";
 import { Id } from "./_generated/dataModel";
 
-// Helper to verify authentication
 async function verifyAuth(ctx: { db: any }, token: string): Promise<Id<"users">> {
   const session = await ctx.db
     .query("sessions")
@@ -16,7 +15,6 @@ async function verifyAuth(ctx: { db: any }, token: string): Promise<Id<"users">>
   return session.userId;
 }
 
-// Input validation helpers
 function sanitizeText(text: string, maxLength: number = 1000): string {
   if (!text || typeof text !== "string") return "";
   return text.trim().slice(0, maxLength).replace(/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/g, "");
@@ -48,12 +46,11 @@ function sanitizeTags(tags: string[] | undefined): string[] {
     .slice(0, 20);
 }
 
-// Create a new website
 export const create = mutation({
   args: {
     token: v.string(),
     categoryId: v.optional(v.id("categories")),
-    folderId: v.optional(v.id("folders")), // Legacy support
+    folderId: v.optional(v.id("folders")),
     url: v.string(),
     title: v.string(),
     description: v.optional(v.string()),
@@ -63,7 +60,6 @@ export const create = mutation({
   handler: async (ctx, args) => {
     const userId = await verifyAuth(ctx, args.token);
 
-    // Validate and sanitize inputs
     if (!validateUrl(args.url)) {
       throw new Error("Invalid URL format");
     }
@@ -77,17 +73,15 @@ export const create = mutation({
       throw new Error("Title is required");
     }
 
-    // Validate favicon URL if provided
     let faviconUrl = args.faviconUrl;
     if (faviconUrl) {
       if (!validateUrl(faviconUrl)) {
-        faviconUrl = undefined; // Ignore invalid favicon URLs
+        faviconUrl = undefined;
       } else {
         faviconUrl = sanitizeUrl(faviconUrl);
       }
     }
 
-    // Verify category belongs to user if provided
     if (args.categoryId) {
       const category = await ctx.db.get(args.categoryId);
       if (!category || category.userId !== userId) {
@@ -95,7 +89,6 @@ export const create = mutation({
       }
     }
 
-    // Legacy: verify folder belongs to user if provided
     if (args.folderId) {
       const folder = await ctx.db.get(args.folderId);
       if (!folder || folder.userId !== userId) {
@@ -103,7 +96,6 @@ export const create = mutation({
       }
     }
 
-    // Get the highest order number
     const websites = await ctx.db
       .query("websites")
       .withIndex("by_user", (q: any) => q.eq("userId", userId))
@@ -131,7 +123,6 @@ export const create = mutation({
   },
 });
 
-// Get all websites for a user
 export const list = query({
   args: {
     token: v.string(),
@@ -150,7 +141,6 @@ export const list = query({
       .withIndex("by_user", (q: any) => q.eq("userId", userId))
       .collect();
 
-    // Get ratings for sorting if needed
     if (args.sortBy === "rating") {
       const ratings = await ctx.db
         .query("ratings")
@@ -170,7 +160,6 @@ export const list = query({
         .sort((a: any, b: any) => b.rating - a.rating);
     }
 
-    // Sort based on sortBy parameter
     switch (args.sortBy) {
       case "clickCount":
         return websites.sort((a: any, b: any) => b.clickCount - a.clickCount);
@@ -183,7 +172,6 @@ export const list = query({
   },
 });
 
-// Get websites in a specific category
 export const getByCategory = query({
   args: {
     token: v.string(),
@@ -200,7 +188,7 @@ export const getByCategory = query({
 
     let websites;
     if (args.categoryId) {
-      // Verify category belongs to user
+
       const category = await ctx.db.get(args.categoryId);
       if (!category || category.userId !== userId) {
         throw new Error("Category not found");
@@ -211,14 +199,13 @@ export const getByCategory = query({
         .withIndex("by_category", (q: any) => q.eq("categoryId", args.categoryId))
         .collect();
     } else {
-      // Get all websites (no category filter)
+
       websites = await ctx.db
         .query("websites")
         .withIndex("by_user", (q: any) => q.eq("userId", userId))
         .collect();
     }
 
-    // Get ratings for all websites
     const ratings = await ctx.db
       .query("ratings")
       .withIndex("by_user", (q: any) => q.eq("userId", userId))
@@ -235,7 +222,6 @@ export const getByCategory = query({
       usefulness: ratingMap.get(w._id.toString())?.usefulness ?? 0,
     }));
 
-    // Sort based on sortBy parameter
     switch (args.sortBy) {
       case "clickCount":
         return websitesWithRatings.sort((a: any, b: any) => b.clickCount - a.clickCount);
@@ -250,7 +236,6 @@ export const getByCategory = query({
   },
 });
 
-// Get websites in a specific folder (legacy)
 export const getByFolder = query({
   args: {
     token: v.string(),
@@ -265,7 +250,6 @@ export const getByFolder = query({
   handler: async (ctx, args) => {
     const userId = await verifyAuth(ctx, args.token);
 
-    // Verify folder access
     const folder = await ctx.db.get(args.folderId);
     if (!folder || (folder.userId !== userId && !folder.isPublic)) {
       throw new Error("Folder not found or access denied");
@@ -276,7 +260,6 @@ export const getByFolder = query({
       .withIndex("by_folder", (q: any) => q.eq("folderId", args.folderId))
       .collect();
 
-    // Get ratings for all websites
     const ratings = await ctx.db
       .query("ratings")
       .withIndex("by_user", (q: any) => q.eq("userId", userId))
@@ -293,7 +276,6 @@ export const getByFolder = query({
       usefulness: ratingMap.get(w._id.toString())?.usefulness ?? 0,
     }));
 
-    // Sort based on sortBy parameter
     switch (args.sortBy) {
       case "clickCount":
         return websitesWithRatings.sort((a: any, b: any) => b.clickCount - a.clickCount);
@@ -308,7 +290,6 @@ export const getByFolder = query({
   },
 });
 
-// Get a single website
 export const get = query({
   args: {
     token: v.string(),
@@ -320,9 +301,8 @@ export const get = query({
     const website = await ctx.db.get(args.websiteId);
     if (!website) return null;
 
-    // Check ownership or category/folder access
     if (website.userId !== userId) {
-      // Check folder access (legacy)
+
       if (website.folderId) {
         const folder = await ctx.db.get(website.folderId);
         if (!folder || !folder.isPublic) {
@@ -333,10 +313,9 @@ export const get = query({
       }
     }
 
-    // Get rating
     const rating = await ctx.db
       .query("ratings")
-      .withIndex("by_user_and_website", (q: any) => 
+      .withIndex("by_user_and_website", (q: any) =>
         q.eq("userId", userId).eq("websiteId", args.websiteId)
       )
       .first();
@@ -349,7 +328,6 @@ export const get = query({
   },
 });
 
-// Update a website
 export const update = mutation({
   args: {
     token: v.string(),
@@ -380,7 +358,6 @@ export const update = mutation({
   },
 });
 
-// Move website to a different folder
 export const move = mutation({
   args: {
     token: v.string(),
@@ -395,13 +372,11 @@ export const move = mutation({
       throw new Error("Website not found");
     }
 
-    // Verify new folder belongs to user
     const folder = await ctx.db.get(args.newFolderId);
     if (!folder || folder.userId !== userId) {
       throw new Error("Folder not found");
     }
 
-    // Get max order in new folder
     const websites = await ctx.db
       .query("websites")
       .withIndex("by_folder", (q: any) => q.eq("folderId", args.newFolderId))
@@ -419,7 +394,6 @@ export const move = mutation({
   },
 });
 
-// Reorder websites in a folder
 export const reorder = mutation({
   args: {
     token: v.string(),
@@ -442,7 +416,6 @@ export const reorder = mutation({
   },
 });
 
-// Delete a website
 export const remove = mutation({
   args: {
     token: v.string(),
@@ -456,7 +429,6 @@ export const remove = mutation({
       throw new Error("Website not found");
     }
 
-    // Delete all ratings for this website
     const ratings = await ctx.db
       .query("ratings")
       .withIndex("by_website", (q: any) => q.eq("websiteId", args.websiteId))
@@ -472,7 +444,6 @@ export const remove = mutation({
   },
 });
 
-// Increment click count
 export const click = mutation({
   args: {
     token: v.string(),
@@ -486,7 +457,6 @@ export const click = mutation({
       throw new Error("Website not found");
     }
 
-    // Check ownership
     if (website.userId !== userId) {
       throw new Error("Access denied");
     }
@@ -499,7 +469,6 @@ export const click = mutation({
   },
 });
 
-// Rate a website
 export const rate = mutation({
   args: {
     token: v.string(),
@@ -515,21 +484,19 @@ export const rate = mutation({
       throw new Error("Website not found");
     }
 
-    // Check ownership
     if (website.userId !== userId) {
       throw new Error("Access denied");
     }
 
-    // Check if rating exists
     const existingRating = await ctx.db
       .query("ratings")
-      .withIndex("by_user_and_website", (q: any) => 
+      .withIndex("by_user_and_website", (q: any) =>
         q.eq("userId", userId).eq("websiteId", args.websiteId)
       )
       .first();
 
     const now = Date.now();
-    
+
     if (existingRating) {
       const updates: Record<string, unknown> = {
         rating: args.rating,
@@ -554,7 +521,6 @@ export const rate = mutation({
   },
 });
 
-// Set category for a website
 export const setCategory = mutation({
   args: {
     token: v.string(),
@@ -569,7 +535,6 @@ export const setCategory = mutation({
       throw new Error("Website not found");
     }
 
-    // Verify category belongs to user if provided
     if (args.categoryId) {
       const category = await ctx.db.get(args.categoryId);
       if (!category || category.userId !== userId) {
@@ -586,7 +551,6 @@ export const setCategory = mutation({
   },
 });
 
-// Search websites across all categories
 export const search = query({
   args: {
     token: v.string(),
@@ -594,7 +558,7 @@ export const search = query({
     tags: v.optional(v.array(v.string())),
     minRating: v.optional(v.number()),
     categoryId: v.optional(v.id("categories")),
-    folderId: v.optional(v.id("folders")), // Legacy support
+    folderId: v.optional(v.id("folders")),
   },
   handler: async (ctx, args) => {
     const userId = await verifyAuth(ctx, args.token);
@@ -604,39 +568,34 @@ export const search = query({
       .withIndex("by_user", (q: any) => q.eq("userId", userId))
       .collect();
 
-    // Filter by category if provided
     if (args.categoryId) {
-      websites = websites.filter((w: any) => 
+      websites = websites.filter((w: any) =>
         w.categoryId && w.categoryId.toString() === args.categoryId!.toString()
       );
     }
 
-    // Filter by folder if provided (legacy)
     if (args.folderId) {
-      websites = websites.filter((w: any) => 
+      websites = websites.filter((w: any) =>
         w.folderId && w.folderId.toString() === args.folderId!.toString()
       );
     }
 
-    // Filter by search query
     const queryLower = args.query.toLowerCase();
-    websites = websites.filter((w: any) => 
+    websites = websites.filter((w: any) =>
       w.title.toLowerCase().includes(queryLower) ||
       w.url.toLowerCase().includes(queryLower) ||
       (w.description && w.description.toLowerCase().includes(queryLower)) ||
       w.tags.some((t: string) => t.toLowerCase().includes(queryLower))
     );
 
-    // Filter by tags if provided
     if (args.tags && args.tags.length > 0) {
       websites = websites.filter((w: any) =>
-        args.tags!.some((tag: string) => 
+        args.tags!.some((tag: string) =>
           w.tags.some((t: string) => t.toLowerCase() === tag.toLowerCase())
         )
       );
     }
 
-    // Get ratings
     const ratings = await ctx.db
       .query("ratings")
       .withIndex("by_user", (q: any) => q.eq("userId", userId))
@@ -647,19 +606,16 @@ export const search = query({
       ratingMap.set(r.websiteId.toString(), r);
     }
 
-    // Add ratings to websites
     websites = websites.map((w: any) => ({
       ...w,
       rating: ratingMap.get(w._id.toString())?.rating ?? 0,
       usefulness: ratingMap.get(w._id.toString())?.usefulness ?? 0,
     }));
 
-    // Filter by min rating if provided
     if (args.minRating !== undefined && args.minRating > 0) {
       websites = websites.filter((w: any) => w.rating >= args.minRating!);
     }
 
-    // Sort by relevance (title matches first, then by date)
     websites.sort((a: any, b: any) => {
       const aTitle = a.title.toLowerCase().includes(queryLower);
       const bTitle = b.title.toLowerCase().includes(queryLower);
@@ -672,7 +628,6 @@ export const search = query({
   },
 });
 
-// Get public folder websites
 export const getPublicWebsites = query({
   args: {
     folderId: v.id("folders"),
@@ -705,7 +660,6 @@ export const getPublicWebsites = query({
   },
 });
 
-// Get all tags for a user
 export const getAllTags = query({
   args: {
     token: v.string(),

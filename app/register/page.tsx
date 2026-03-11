@@ -22,7 +22,6 @@ export default function RegisterPage() {
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
-  // Redirect if already logged in
   React.useEffect(() => {
     if (user) {
       router.push("/dashboard");
@@ -33,7 +32,6 @@ export default function RegisterPage() {
     e.preventDefault();
     setError("");
 
-    // Basic validation
     if (!name.trim()) {
       setError("Please enter your name");
       return;
@@ -59,7 +57,6 @@ export default function RegisterPage() {
       return;
     }
 
-    // Email format validation
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email)) {
       setError("Please enter a valid email address");
@@ -85,7 +82,6 @@ export default function RegisterPage() {
       const errorMessage =
         err instanceof Error ? err.message : "Registration failed";
 
-      // Provide more user-friendly error messages
       if (errorMessage === "User with this email already exists") {
         setError(
           "An account with this email already exists. Please try logging in instead."
@@ -106,7 +102,7 @@ export default function RegisterPage() {
 
   return (
     <div className="min-h-screen flex items-center justify-center p-4 relative overflow-hidden">
-      {/* Shader background container */}
+
       <div className="absolute inset-0">
         <ShaderBackground />
       </div>

@@ -2,7 +2,6 @@ import { mutation, query } from "./_generated/server";
 import { v } from "convex/values";
 import { Id } from "./_generated/dataModel";
 
-// Helper to verify authentication
 async function verifyAuth(ctx: { db: any }, token: string): Promise<Id<"users">> {
   const session = await ctx.db
     .query("sessions")
@@ -16,7 +15,6 @@ async function verifyAuth(ctx: { db: any }, token: string): Promise<Id<"users">>
   return session.userId;
 }
 
-// Create a new folder
 export const create = mutation({
   args: {
     token: v.string(),
@@ -27,7 +25,6 @@ export const create = mutation({
   handler: async (ctx, args) => {
     const userId = await verifyAuth(ctx, args.token);
 
-    // If parentId provided, verify it belongs to user
     if (args.parentId) {
       const parent = await ctx.db.get(args.parentId);
       if (!parent || parent.userId !== userId) {
@@ -35,10 +32,9 @@ export const create = mutation({
       }
     }
 
-    // Get the highest order number for siblings
     const siblings = await ctx.db
       .query("folders")
-      .withIndex("by_user_and_parent", (q: any) => 
+      .withIndex("by_user_and_parent", (q: any) =>
         q.eq("userId", userId).eq("parentId", args.parentId)
       )
       .collect();
@@ -60,7 +56,6 @@ export const create = mutation({
   },
 });
 
-// Get all folders for a user
 export const list = query({
   args: {
     token: v.string(),
@@ -77,7 +72,6 @@ export const list = query({
   },
 });
 
-// Get folders in a specific parent
 export const getByParent = query({
   args: {
     token: v.string(),
@@ -88,7 +82,7 @@ export const getByParent = query({
 
     const folders = await ctx.db
       .query("folders")
-      .withIndex("by_user_and_parent", (q: any) => 
+      .withIndex("by_user_and_parent", (q: any) =>
         q.eq("userId", userId).eq("parentId", args.parentId)
       )
       .collect();
@@ -97,7 +91,6 @@ export const getByParent = query({
   },
 });
 
-// Get a single folder
 export const get = query({
   args: {
     token: v.string(),
@@ -109,7 +102,6 @@ export const get = query({
     const folder = await ctx.db.get(args.folderId);
     if (!folder) return null;
 
-    // Check access
     if (folder.userId !== userId && !folder.isPublic) {
       throw new Error("Access denied");
     }
@@ -118,7 +110,6 @@ export const get = query({
   },
 });
 
-// Update a folder
 export const update = mutation({
   args: {
     token: v.string(),
@@ -143,7 +134,6 @@ export const update = mutation({
   },
 });
 
-// Move a folder to a new parent
 export const move = mutation({
   args: {
     token: v.string(),
@@ -158,7 +148,6 @@ export const move = mutation({
       throw new Error("Folder not found");
     }
 
-    // Verify new parent belongs to user
     if (args.newParentId) {
       const parent = await ctx.db.get(args.newParentId);
       if (!parent || parent.userId !== userId) {
@@ -166,10 +155,9 @@ export const move = mutation({
       }
     }
 
-    // Get max order in new parent
     const siblings = await ctx.db
       .query("folders")
-      .withIndex("by_user_and_parent", (q: any) => 
+      .withIndex("by_user_and_parent", (q: any) =>
         q.eq("userId", userId).eq("parentId", args.newParentId)
       )
       .collect();
@@ -186,7 +174,6 @@ export const move = mutation({
   },
 });
 
-// Reorder folders
 export const reorder = mutation({
   args: {
     token: v.string(),
@@ -209,7 +196,6 @@ export const reorder = mutation({
   },
 });
 
-// Delete a folder and all its contents
 export const remove = mutation({
   args: {
     token: v.string(),
@@ -223,63 +209,59 @@ export const remove = mutation({
       throw new Error("Folder not found");
     }
 
-    // Delete all websites in this folder
     const websites = await ctx.db
       .query("websites")
       .withIndex("by_folder", (q: any) => q.eq("folderId", args.folderId))
       .collect();
 
     for (const website of websites) {
-      // Delete ratings for this website
+
       const ratings = await ctx.db
         .query("ratings")
         .withIndex("by_website", (q: any) => q.eq("websiteId", website._id))
         .collect();
-      
+
       for (const rating of ratings) {
         await ctx.db.delete(rating._id);
       }
-      
+
       await ctx.db.delete(website._id);
     }
 
-    // Delete all subfolders recursively
     const subfolders = await ctx.db
       .query("folders")
       .withIndex("by_parent", (q: any) => q.eq("parentId", args.folderId))
       .collect();
 
     for (const subfolder of subfolders) {
-      // Recursively delete subfolder contents
+
       const subWebsites = await ctx.db
         .query("websites")
         .withIndex("by_folder", (q: any) => q.eq("folderId", subfolder._id))
         .collect();
-      
+
       for (const website of subWebsites) {
         const ratings = await ctx.db
           .query("ratings")
           .withIndex("by_website", (q: any) => q.eq("websiteId", website._id))
           .collect();
-        
+
         for (const rating of ratings) {
           await ctx.db.delete(rating._id);
         }
-        
+
         await ctx.db.delete(website._id);
       }
-      
+
       await ctx.db.delete(subfolder._id);
     }
 
-    // Delete the folder itself
     await ctx.db.delete(args.folderId);
 
     return { success: true };
   },
 });
 
-// Get folder tree structure
 export const getTree = query({
   args: {
     token: v.string(),
@@ -292,7 +274,6 @@ export const getTree = query({
       .withIndex("by_user", (q: any) => q.eq("userId", userId))
       .collect();
 
-    // Build tree structure
     const folderMap = new Map();
     for (const folder of folders) {
       folderMap.set(folder._id.toString(), { ...folder, children: [] });
@@ -311,7 +292,6 @@ export const getTree = query({
       }
     }
 
-    // Sort by order
     const sortByOrder = (items: any[]) => {
       items.sort((a, b) => a.order - b.order);
       for (const item of items) {
@@ -327,7 +307,6 @@ export const getTree = query({
   },
 });
 
-// Get public folder
 export const getPublicFolder = query({
   args: {
     folderId: v.id("folders"),

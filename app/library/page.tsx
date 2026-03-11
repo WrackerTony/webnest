@@ -25,7 +25,6 @@ import {
 } from "../components/ui";
 import { Id } from "../../convex/_generated/dataModel";
 
-// Category type
 interface Category {
   _id: Id<"categories">;
   name: string;
@@ -35,7 +34,6 @@ interface Category {
   websiteCount?: number;
 }
 
-// Website type
 interface Website {
   _id: Id<"websites">;
   url: string;
@@ -54,7 +52,6 @@ export default function LibraryPage() {
   const router = useRouter();
   const { user, token, isLoading: authLoading } = useAuth();
 
-  // View state
   const [view, setView] = useState<"grid" | "list">("grid");
   const [sortBy, setSortBy] = useState<
     "dateAdded" | "clickCount" | "rating" | "title"
@@ -64,7 +61,6 @@ export default function LibraryPage() {
     Id<"categories"> | undefined
   >();
 
-  // Modal state
   const [isAddWebsiteOpen, setIsAddWebsiteOpen] = useState(false);
   const [isCategoryModalOpen, setIsCategoryModalOpen] = useState(false);
   const [editingCategory, setEditingCategory] = useState<Category | null>(null);
@@ -75,15 +71,12 @@ export default function LibraryPage() {
   const [deletingWebsite, setDeletingWebsite] = useState<Website | null>(null);
   const [movingWebsite, setMovingWebsite] = useState<Website | null>(null);
 
-  // Category form state
   const [categoryName, setCategoryName] = useState("");
   const [categoryColor, setCategoryColor] = useState(CATEGORY_COLORS[0]);
   const [categoryIcon, setCategoryIcon] = useState("folder");
 
-  // Derived auth state
   const isAuthenticated = !!token && !authLoading;
 
-  // Fetch data
   const categories = useQuery(
     api.categories.list,
     user ? { token: token! } : "skip"
@@ -101,21 +94,18 @@ export default function LibraryPage() {
       : "skip"
   ) as Website[] | undefined;
 
-  // Mutations
   const createCategory = useMutation(api.categories.create);
   const updateCategory = useMutation(api.categories.update);
   const removeCategory = useMutation(api.categories.remove);
   const deleteWebsite = useMutation(api.websites.remove);
   const setWebsiteCategory = useMutation(api.websites.setCategory);
 
-  // Redirect if not authenticated
   useEffect(() => {
     if (!authLoading && !isAuthenticated) {
       router.push("/login");
     }
   }, [authLoading, isAuthenticated, router]);
 
-  // Display websites (search results or category websites)
   const displayedWebsites = useMemo(() => {
     if (searchQuery.length > 0 && searchResults) {
       return searchResults;
@@ -123,7 +113,6 @@ export default function LibraryPage() {
     return websites || [];
   }, [searchQuery, searchResults, websites]);
 
-  // Handle category form submit
   const handleCategorySubmit = async () => {
     if (!token || !categoryName.trim()) return;
 
@@ -150,7 +139,6 @@ export default function LibraryPage() {
     }
   };
 
-  // Handle category delete
   const handleDeleteCategory = async () => {
     if (!token || !deletingCategory) return;
 
@@ -165,7 +153,6 @@ export default function LibraryPage() {
     }
   };
 
-  // Handle website delete
   const handleDeleteWebsite = async () => {
     if (!token || !deletingWebsite) return;
 
@@ -177,7 +164,6 @@ export default function LibraryPage() {
     }
   };
 
-  // Handle move website to category
   const handleMoveWebsite = async (categoryId?: Id<"categories">) => {
     if (!token || !movingWebsite) return;
 
@@ -193,7 +179,6 @@ export default function LibraryPage() {
     }
   };
 
-  // Open category modal for editing
   const openEditCategory = (category: Category) => {
     setEditingCategory(category);
     setCategoryName(category.name);
@@ -202,7 +187,6 @@ export default function LibraryPage() {
     setIsCategoryModalOpen(true);
   };
 
-  // Open category modal for creating
   const openCreateCategory = () => {
     setEditingCategory(null);
     setCategoryName("");
@@ -211,7 +195,6 @@ export default function LibraryPage() {
     setIsCategoryModalOpen(true);
   };
 
-  // Close category modal
   const closeCategoryModal = () => {
     setIsCategoryModalOpen(false);
     setEditingCategory(null);
@@ -231,7 +214,7 @@ export default function LibraryPage() {
   return (
     <div className="min-h-screen bg-[#1E1E1F]">
       <div className="flex h-[calc(100vh-4rem)]">
-        {/* Sidebar with categories */}
+
         <aside className="w-64 border-r border-[#3C3B3D] bg-[#2C2B2D] overflow-y-auto hidden md:block">
           <div className="p-4">
             <h2 className="text-sm font-semibold text-[#6D6C70] uppercase tracking-wider mb-2">
@@ -248,12 +231,11 @@ export default function LibraryPage() {
           </div>
         </aside>
 
-        {/* Main content */}
         <main className="flex-1 overflow-y-auto">
-          {/* Header */}
+
           <div className="sticky top-0 z-10 bg-[#1E1E1F] border-b border-[#3C3B3D] px-6 py-4">
             <div className="flex items-center justify-between gap-4">
-              {/* Search */}
+
               <div className="flex-1 max-w-md">
                 <div className="relative">
                   <svg
@@ -300,7 +282,6 @@ export default function LibraryPage() {
                 </div>
               </div>
 
-              {/* View toggle */}
               <div className="flex items-center gap-2 bg-[#3C3B3D] rounded-lg p-1">
                 <button
                   onClick={() => setView("grid")}

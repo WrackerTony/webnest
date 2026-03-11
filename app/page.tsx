@@ -10,7 +10,6 @@ export default function HomePage() {
   const router = useRouter();
   const { user, isLoading } = useAuth();
 
-  // Redirect if logged in
   useEffect(() => {
     if (!isLoading && user) {
       router.push("/dashboard");
@@ -19,16 +18,16 @@ export default function HomePage() {
 
   return (
     <div className="min-h-screen transition-colors duration-300">
-      {/* Hero section with shader background */}
+
       <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
-        {/* Shader background - contained within hero section */}
+
         <div className="absolute inset-0">
           <ShaderBackground />
         </div>
 
         <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24 sm:py-32">
           <div className="text-center">
-            {/* Badge */}
+
             <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-black/30 backdrop-blur-md border border-white/20 mb-8 animate-in fade-in slide-up">
               <span className="w-2 h-2 rounded-full bg-violet-400 animate-pulse" />
               <span className="text-sm text-white font-medium">
@@ -83,7 +82,6 @@ export default function HomePage() {
               </Link>
             </div>
 
-            {/* Stats */}
             <div className="mt-20 grid grid-cols-2 gap-8 max-w-md mx-auto animate-in fade-in slide-up delay-400">
               <div className="text-center">
                 <div className="text-3xl font-bold text-violet-300">∞</div>
@@ -97,7 +95,6 @@ export default function HomePage() {
           </div>
         </div>
 
-        {/* Scroll indicator */}
         <div className="absolute bottom-8 left-1/2 -translate-x-1/2 animate-bounce z-10">
           <svg
             className="w-6 h-6 text-white/60"
@@ -115,7 +112,6 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Features section - solid background, no shader */}
       <section className="relative py-32 bg-background dark:bg-[#1E1E1F]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-20">
@@ -253,7 +249,6 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Footer */}
       <footer className="bg-surface/50 dark:bg-[#1E1E1F] border-t border-border dark:border-[#3C3B3D] py-12">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex flex-col md:flex-row items-center justify-between gap-4">

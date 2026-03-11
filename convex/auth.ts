@@ -1,33 +1,30 @@
 import { mutation, query } from "./_generated/server";
 import { v } from "convex/values";
 
-// Enhanced hash function for passwords using multiple rounds
-// Note: For production with sensitive data, consider using Convex Actions with bcrypt
 function secureHash(password: string, salt: string = ""): string {
   const combined = password + salt + "webnest_secret_2024";
   let hash1 = 0, hash2 = 0, hash3 = 0;
-  
+
   for (let i = 0; i < combined.length; i++) {
     const char = combined.charCodeAt(i);
     hash1 = ((hash1 << 5) - hash1 + char) | 0;
     hash2 = ((hash2 << 7) + hash2 + char) | 0;
     hash3 = ((hash3 << 3) - hash3 + char * (i + 1)) | 0;
   }
-  
-  // Multiple rounds for additional security
+
   for (let round = 0; round < 1000; round++) {
     hash1 = ((hash1 << 5) - hash1 + hash2) | 0;
     hash2 = ((hash2 << 7) + hash2 + hash3) | 0;
     hash3 = ((hash3 << 3) - hash3 + hash1) | 0;
   }
-  
+
   return Math.abs(hash1).toString(36) + Math.abs(hash2).toString(36) + Math.abs(hash3).toString(36);
 }
 
 function generateSecureToken(): string {
   const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
   let token = '';
-  // Using timestamp and random for better entropy
+
   const timestamp = Date.now().toString(36);
   for (let i = 0; i < 64; i++) {
     token += chars.charAt(Math.floor(Math.random() * chars.length));
@@ -35,7 +32,6 @@ function generateSecureToken(): string {
   return timestamp + token;
 }
 
-// Input validation helpers
 function validateEmail(email: string): boolean {
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   return emailRegex.test(email) && email.length <= 254 && email.length >= 5;
@@ -60,7 +56,6 @@ function sanitizeText(text: string): string {
   return text.trim().replace(/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/g, "");
 }
 
-// Register a new user
 export const register = mutation({
   args: {
     email: v.string(),
@@ -68,7 +63,7 @@ export const register = mutation({
     name: v.string(),
   },
   handler: async (ctx, args) => {
-    // Validate inputs
+
     const email = sanitizeText(args.email.toLowerCase());
     const name = sanitizeText(args.name);
     const password = args.password;
@@ -86,19 +81,17 @@ export const register = mutation({
       return { success: false, error: passwordValidation.message };
     }
 
-    // Check if user already exists
     const existing = await ctx.db
       .query("users")
       .withIndex("by_email", (q) => q.eq("email", email))
       .first();
-    
+
     if (existing) {
       return { success: false, error: "User with this email already exists" };
     }
 
     const now = Date.now();
-    
-    // Create user with hashed password
+
     const userId = await ctx.db.insert("users", {
       email,
       passwordHash: secureHash(password, email),
@@ -107,7 +100,6 @@ export const register = mutation({
       updatedAt: now,
     });
 
-    // Create default preferences
     await ctx.db.insert("preferences", {
       userId,
       defaultView: "grid",
@@ -116,7 +108,6 @@ export const register = mutation({
       updatedAt: now,
     });
 
-    // Create default folder
     await ctx.db.insert("folders", {
       userId,
       name: "My Bookmarks",
@@ -126,9 +117,8 @@ export const register = mutation({
       updatedAt: now,
     });
 
-    // Create session with secure token
     const token = generateSecureToken();
-    const expiresAt = now + (30 * 24 * 60 * 60 * 1000); // 30 days
+    const expiresAt = now + (30 * 24 * 60 * 60 * 1000);
 
     await ctx.db.insert("sessions", {
       userId,
@@ -141,7 +131,6 @@ export const register = mutation({
   },
 });
 
-// Login
 export const login = mutation({
   args: {
     email: v.string(),
@@ -170,7 +159,7 @@ export const login = mutation({
 
     const now = Date.now();
     const token = generateSecureToken();
-    const expiresAt = now + (30 * 24 * 60 * 60 * 1000); // 30 days
+    const expiresAt = now + (30 * 24 * 60 * 60 * 1000);
 
     await ctx.db.insert("sessions", {
       userId: user._id,
@@ -183,7 +172,6 @@ export const login = mutation({
   },
 });
 
-// Logout
 export const logout = mutation({
   args: {
     token: v.string(),
@@ -202,7 +190,6 @@ export const logout = mutation({
   },
 });
 
-// Get current user from token
 export const getCurrentUser = query({
   args: {
     token: v.optional(v.string()),
@@ -223,7 +210,6 @@ export const getCurrentUser = query({
     const user = await ctx.db.get(session.userId);
     if (!user) return null;
 
-    // Get preferences
     const preferences = await ctx.db
       .query("preferences")
       .withIndex("by_user", (q) => q.eq("userId", user._id))
@@ -237,7 +223,6 @@ export const getCurrentUser = query({
   },
 });
 
-// Update user profile
 export const updateProfile = mutation({
   args: {
     token: v.string(),
@@ -263,7 +248,6 @@ export const updateProfile = mutation({
   },
 });
 
-// Update user preferences
 export const updatePreferences = mutation({
   args: {
     token: v.string(),
@@ -292,7 +276,7 @@ export const updatePreferences = mutation({
       .first();
 
     if (!preferences) {
-      // Create default preferences if not found
+
       const preferencesId = await ctx.db.insert("preferences", {
         userId: session.userId,
         defaultView: "grid",
@@ -317,7 +301,6 @@ export const updatePreferences = mutation({
   },
 });
 
-// Change password
 export const changePassword = mutation({
   args: {
     token: v.string(),
@@ -339,7 +322,6 @@ export const changePassword = mutation({
       throw new Error("User not found");
     }
 
-    // Validate new password
     const passwordValidation = validatePassword(args.newPassword);
     if (!passwordValidation.valid) {
       throw new Error(passwordValidation.message);

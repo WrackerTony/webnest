@@ -20,7 +20,7 @@ export function Navbar() {
     <nav className="sticky top-0 z-40 w-full bg-[#1E1E1F]/80 backdrop-blur-xl border-b border-[#3C3B3D] transition-colors duration-300">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
-          {/* Logo */}
+
           <div className="flex items-center gap-8">
             <Link
               href={user ? "/dashboard" : "/"}
@@ -46,7 +46,6 @@ export function Navbar() {
               </span>
             </Link>
 
-            {/* Navigation Links */}
             {user && (
               <div className="hidden md:flex items-center gap-1">
                 {navLinks.map((link) => (

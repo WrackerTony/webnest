@@ -116,7 +116,7 @@ export function CategoryList({
 }: CategoryListProps) {
   return (
     <div className="py-2 space-y-1">
-      {/* All Websites option */}
+
       <button
         onClick={() => onSelectCategory(undefined)}
         className={`

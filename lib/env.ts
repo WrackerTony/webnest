@@ -1,8 +1,3 @@
-/**
- * Environment validation for WebNest
- * Ensures all required environment variables are set before running
- */
-
 const requiredEnvVars = ["CONVEX_DEPLOYMENT", "NEXT_PUBLIC_CONVEX_URL"] as const;
 
 export function validateEnv(): void {

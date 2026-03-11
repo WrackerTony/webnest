@@ -6,7 +6,6 @@ const ShaderBackground = () => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [mounted, setMounted] = React.useState(false);
 
-  // Vertex shader source code
   const vsSource = `
     attribute vec4 aVertexPosition;
     void main() {
@@ -14,7 +13,6 @@ const ShaderBackground = () => {
     }
   `;
 
-  // Fragment shader source code
   const fsSource = `
     precision highp float;
     uniform vec2 iResolution;
@@ -126,7 +124,6 @@ const ShaderBackground = () => {
       return;
     }
 
-    // Helper function to compile shader
     const loadShader = (type: number, source: string): WebGLShader | null => {
       const shader = gl.createShader(type);
       if (!shader) return null;
@@ -143,7 +140,6 @@ const ShaderBackground = () => {
       return shader;
     };
 
-    // Initialize shader program
     const initShaderProgram = (): WebGLProgram | null => {
       const vertexShader = loadShader(gl.VERTEX_SHADER, vsSource);
       const fragmentShader = loadShader(gl.FRAGMENT_SHADER, fsSource);

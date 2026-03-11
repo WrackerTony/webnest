@@ -11,7 +11,6 @@ interface CursorContextType {
 
 const CursorContext = createContext<CursorContextType | undefined>(undefined);
 
-// Default cursor context for SSR/static generation
 const defaultCursorContext: CursorContextType = {
   cursorStyle: "default",
   setCursorStyle: () => {},
@@ -21,7 +20,6 @@ export function CursorProvider({ children }: { children: React.ReactNode }) {
   const [cursorStyle, setCursorStyleState] = useState<CursorStyle>("default");
   const [isInitialized, setIsInitialized] = useState(false);
 
-  // Load cursor preference from localStorage on mount
   useEffect(() => {
     const savedCursor = localStorage.getItem(
       "cursorStyle"
@@ -39,7 +37,6 @@ export function CursorProvider({ children }: { children: React.ReactNode }) {
     document.documentElement.setAttribute("data-cursor", style);
   };
 
-  // Prevent flash of wrong cursor by not rendering until initialized
   if (!isInitialized) {
     return <>{children}</>;
   }
@@ -53,7 +50,7 @@ export function CursorProvider({ children }: { children: React.ReactNode }) {
 
 export function useCursor() {
   const context = useContext(CursorContext);
-  // Return default context during SSR/static generation
+
   if (context === undefined) {
     return defaultCursorContext;
   }
